@@ -242,52 +242,8 @@ namespace Tiesto.Podcast
         {
             var data = (comboBox1.SelectedItem as ComboboxItem);
             var json_data = File.ReadAllText(localdata.TracklistJson);
-            var json = JsonConvert.DeserializeObject<Tiesto.Mix>(json_data);
 
-            string savelist = Path.Combine(Download.Folder, Download.FileName.Replace("m4a", "cue"));
-            WriteCue cue = new WriteCue(savelist, data.Year, data.Episode, Download.FileName);
-
-            int tracknumber = 1;
-            int lasttime = 0;
-            foreach (var x in json.mixPodcastTracks)
-            {
-                bool guest = false;
-                if (tracknumber == 1)
-                {
-                    cue.AddTrack(tracknumber.ToString("00"), $"{Data.Normalize(x.artist)} - Intro", "00:00:00");
-                }
-                else
-                {
-                    guest = true;
-                }
-
-                foreach (var y in x.tracks)
-                {
-                    tracknumber++;
-                    if (y.track.starttime != 0)
-                    {
-                        lasttime = y.track.starttime;
-                    }
-                    else
-                    {
-                        lasttime += 60;
-                    }
-
-                    if (guest)
-                    {
-                        var intro_ts = TimeSpan.FromSeconds(lasttime);
-                        string intro_durasi = $"{intro_ts.Minutes.ToString("00")}:{intro_ts.Seconds.ToString("00")}:{intro_ts.Milliseconds.ToString("00")}";
-                        cue.AddTrack(tracknumber.ToString("00"), Data.Normalize(Data.GetArtist(x.artist) + " - Guest Mix"), intro_durasi);
-                        tracknumber++;
-                        lasttime += 30;
-                        guest = false;
-                    }
-
-                    var ts = TimeSpan.FromSeconds(lasttime);
-                    string durasi = $"{ts.Minutes.ToString("00")}:{ts.Seconds.ToString("00")}:{ts.Milliseconds.ToString("00")}";
-                    cue.AddTrack(tracknumber.ToString("00"), Data.Normalize(y.track.title), durasi, x.artist);
-                }
-            }
+            Cue.Write(data, json_data);
         }
 
         private void checkbox_Changed(object sender, EventArgs e)
