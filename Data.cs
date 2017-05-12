@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Tiesto.Podcast
 {
-    class Converter
+    class Data
     {
         public static string Normalize(string text)
         {
@@ -19,5 +20,18 @@ namespace Tiesto.Podcast
             return dtDateTime;
         }
 
+        public static string GetArtist(string text)
+        {
+            Regex regex = new Regex(@"([\s\S]+)-");
+            Match match = regex.Match(text);
+            if (match.Success)
+            {
+                return match.Groups[1].Value.Trim();
+            }
+            else
+            {
+                return text;
+            }
+        }
     }
 }

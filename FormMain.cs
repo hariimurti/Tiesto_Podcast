@@ -67,12 +67,12 @@ namespace Tiesto.Podcast
                 {
                     ComboboxItem item = new ComboboxItem();
                     item.Id = pod.podcast.id;
-                    item.Title = Converter.Normalize(pod.podcast.title);
+                    item.Title = Data.Normalize(pod.podcast.title);
                     item.Episode = pod.podcast.episodeNumber.ToString();
                     item.Duration = pod.podcast.duration;
                     item.Url = pod.podcast.mp4Url;
                     double drelease = Convert.ToDouble(pod.podcast.releaseDate.ToString().Substring(0, 10));
-                    DateTime release = Converter.UnixTimeStampToDateTime(drelease);
+                    DateTime release = Data.UnixTimeStampToDateTime(drelease);
                     item.Release = release;
                     item.Year = release.Year.ToString();
                     comboBox1.Items.Add(item);
@@ -116,7 +116,7 @@ namespace Tiesto.Podcast
                             var ts = TimeSpan.FromSeconds(y.track.starttime);
                             string durasi = string.Format("{0}:{1}", ts.Minutes.ToString("00"), ts.Seconds.ToString("00"));
                             item1.SubItems.Add(durasi);
-                            item1.SubItems.Add(Converter.Normalize(y.track.title));
+                            item1.SubItems.Add(Data.Normalize(y.track.title));
                             listView1.Items.Add(item1);
                         }
                     }
@@ -192,6 +192,30 @@ namespace Tiesto.Podcast
             }
         }
 
+        private void label11_Click(object sender, EventArgs e)
+        {
+            if (isListNotEmpty)
+            {
+                bool result = false;
+                if (checkBox1.Checked)
+                {
+                    SaveAsCue();
+                    result = true;
+                }
+                if (checkBox2.Checked)
+                {
+                    SaveAsTxt();
+                    result = true;
+                }
+
+                if (result) MessageBox.Show("Track list berhasil disimpan.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Track list kosong!", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void SaveAsTxt()
         {
             var data = (comboBox1.SelectedItem as ComboboxItem);
@@ -204,12 +228,12 @@ namespace Tiesto.Podcast
 
             foreach (var x in json.mixPodcastTracks)
             {
-                File.AppendAllText(savelist, $"== {Converter.Normalize(x.artist)} ==\r\n");
+                File.AppendAllText(savelist, $"== {Data.Normalize(x.artist)} ==\r\n");
                 foreach (var y in x.tracks)
                 {
                     var ts = TimeSpan.FromSeconds(y.track.starttime);
                     string durasi = $"{ts.Minutes.ToString("00")}:{ts.Seconds.ToString("00")}";
-                    File.AppendAllText(savelist, $"[{durasi}] {Converter.Normalize(y.track.title)}\r\n");
+                    File.AppendAllText(savelist, $"[{durasi}] {Data.Normalize(y.track.title)}\r\n");
                 }
             }
         }
@@ -227,14 +251,14 @@ namespace Tiesto.Podcast
             int lasttime = 0;
             foreach (var x in json.mixPodcastTracks)
             {
-                bool intro = false;
+                bool guest = false;
                 if (tracknumber == 1)
                 {
-                    cue.AddTrack(tracknumber.ToString("00"), $"{Converter.Normalize(x.artist)} - Intro", "00:00:00");
+                    cue.AddTrack(tracknumber.ToString("00"), $"{Data.Normalize(x.artist)} - Intro", "00:00:00");
                 }
                 else
                 {
-                    intro = true;
+                    guest = true;
                 }
 
                 foreach (var y in x.tracks)
@@ -249,19 +273,19 @@ namespace Tiesto.Podcast
                         lasttime += 60;
                     }
 
-                    if (intro)
+                    if (guest)
                     {
                         var intro_ts = TimeSpan.FromSeconds(lasttime);
                         string intro_durasi = $"{intro_ts.Minutes.ToString("00")}:{intro_ts.Seconds.ToString("00")}:{intro_ts.Milliseconds.ToString("00")}";
-                        cue.AddTrack(tracknumber.ToString("00"), Converter.Normalize(x.artist), intro_durasi);
+                        cue.AddTrack(tracknumber.ToString("00"), Data.Normalize(Data.GetArtist(x.artist) + " - Guest Mix"), intro_durasi);
                         tracknumber++;
                         lasttime += 30;
-                        intro = false;
+                        guest = false;
                     }
 
                     var ts = TimeSpan.FromSeconds(lasttime);
                     string durasi = $"{ts.Minutes.ToString("00")}:{ts.Seconds.ToString("00")}:{ts.Milliseconds.ToString("00")}";
-                    cue.AddTrack(tracknumber.ToString("00"), Converter.Normalize(y.track.title), durasi);
+                    cue.AddTrack(tracknumber.ToString("00"), Data.Normalize(y.track.title), durasi, x.artist);
                 }
             }
         }

@@ -18,7 +18,7 @@ namespace Tiesto.Podcast
                 $"FILE \"{filename}\" M4A\r\n");
         }
 
-        public void AddTrack(string trackNumber, string trackName, string startTime)
+        public void AddTrack(string trackNumber, string trackName, string startTime, string guest = null)
         {
             Regex regex = new Regex(@"([\s\S]+)-([\s\S]+)");
             Match match = regex.Match(trackName);
@@ -30,7 +30,7 @@ namespace Tiesto.Podcast
             }
             else
             {
-                artist = string.Empty;
+                artist = (guest != null) ? guest : "VA" ;
                 title = trackName;
             }
             File.AppendAllText(this.Location,

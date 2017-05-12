@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComboboxItem.cs" />
-    <Compile Include="Converter.cs" />
+    <Compile Include="Data.cs" />
     <Compile Include="Download.cs" />
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
