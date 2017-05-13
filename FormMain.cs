@@ -34,6 +34,8 @@ namespace Tiesto.Podcast
                 textBox1.Text = Download.Folder;
             }
 
+            button4.Enabled = false;
+
             checkBox1.Checked = localdata.SaveAsCue;
             checkBox2.Checked = localdata.SaveAsTxt;
 
@@ -92,6 +94,7 @@ namespace Tiesto.Podcast
         {
             var data = (comboBox1.SelectedItem as ComboboxItem);
             button2.Enabled = false;
+            button4.Enabled = false;
             label9.Text = data.Title;
             label8.Text = data.Release.ToString();
             label7.Text = string.Empty;
@@ -121,7 +124,6 @@ namespace Tiesto.Podcast
                         }
                     }
 
-                    button2.Enabled = true;
                     if (trackCount == 0)
                     {
                         label7.Text = "0 Track";
@@ -132,6 +134,9 @@ namespace Tiesto.Podcast
                         label7.Text = $"{trackCount.ToString()} Tracks";
                         isListNotEmpty = true;
                     }
+
+                    button2.Enabled = true;
+                    button4.Enabled = isListNotEmpty && (checkBox1.Checked || checkBox2.Checked);
                 }
                 else
                 {
@@ -168,10 +173,17 @@ namespace Tiesto.Podcast
 
                 if (isListNotEmpty)
                 {
-                    if (checkBox1.Checked)
-                        SaveAsCue();
-                    if (checkBox2.Checked)
-                        SaveAsTxt();
+                    if (checkBox1.Checked || checkBox2.Checked)
+                    {
+                        DialogResult askToSave = MessageBox.Show("Simpan track list?", this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (askToSave == DialogResult.Yes)
+                        {
+                            if (checkBox1.Checked)
+                                SaveAsCue();
+                            if (checkBox2.Checked)
+                                SaveAsTxt();
+                        }
+                    }
                 }
             }
             else
@@ -192,28 +204,21 @@ namespace Tiesto.Podcast
             }
         }
 
-        private void label11_Click(object sender, EventArgs e)
+        private void button4_Click(object sender, EventArgs e)
         {
-            if (isListNotEmpty)
+            bool result = false;
+            if (checkBox1.Checked)
             {
-                bool result = false;
-                if (checkBox1.Checked)
-                {
-                    SaveAsCue();
-                    result = true;
-                }
-                if (checkBox2.Checked)
-                {
-                    SaveAsTxt();
-                    result = true;
-                }
+                SaveAsCue();
+                result = true;
+            }
+            if (checkBox2.Checked)
+            {
+                SaveAsTxt();
+                result = true;
+            }
 
-                if (result) MessageBox.Show("Track list berhasil disimpan.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("Track list kosong!", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            if (result) MessageBox.Show("Track list berhasil disimpan.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void SaveAsTxt()
@@ -249,6 +254,7 @@ namespace Tiesto.Podcast
         private void checkbox_Changed(object sender, EventArgs e)
         {
             localdata.SaveAs(checkBox1.Checked, checkBox2.Checked);
+            button4.Enabled = isListNotEmpty && (checkBox1.Checked || checkBox2.Checked);
         }
     }
 }

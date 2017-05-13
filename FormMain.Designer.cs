@@ -40,7 +40,6 @@
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
@@ -51,6 +50,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.listView1 = new System.Windows.Forms.ListView();
+            this.button4 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -123,10 +123,10 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.button4);
             this.groupBox2.Controls.Add(this.checkBox2);
             this.groupBox2.Controls.Add(this.checkBox1);
             this.groupBox2.Controls.Add(this.label10);
-            this.groupBox2.Controls.Add(this.label11);
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.label9);
@@ -176,17 +176,6 @@
             this.label10.Size = new System.Drawing.Size(13, 13);
             this.label10.TabIndex = 21;
             this.label10.Text = ":";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.label11.Location = new System.Drawing.Point(194, 56);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(47, 13);
-            this.label11.TabIndex = 20;
-            this.label11.Text = "Save As";
-            this.label11.Click += new System.EventHandler(this.label11_Click);
             // 
             // label7
             // 
@@ -268,6 +257,19 @@
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             // 
+            // button4
+            // 
+            this.button4.AutoSize = true;
+            this.button4.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.button4.Enabled = false;
+            this.button4.Location = new System.Drawing.Point(185, 51);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(57, 23);
+            this.button4.TabIndex = 24;
+            this.button4.Text = "Save As";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -311,7 +313,7 @@
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button button4;
     }
 }
 
