@@ -175,9 +175,11 @@ namespace Tiesto.Podcast
                 exec.Arguments = $"/d \"{Download.Url}\" /p \"{Download.Folder}\" /f \"{Download.FileName}\" /n";
                 Process.Start(exec);
 
+                string pathCue = Path.Combine(Download.Folder, Download.FileName.Replace("m4a", "cue"));
+                string pathTxt = Path.Combine(Download.Folder, Download.FileName.Replace("m4a", "txt"));
                 if (isListNotEmpty)
                 {
-                    if (checkBox1.Checked || checkBox2.Checked)
+                    if ((checkBox1.Checked && !File.Exists(pathCue)) || (checkBox2.Checked && !File.Exists(pathTxt)))
                     {
                         DialogResult askToSave = MessageBox.Show("Simpan track list?", this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (askToSave == DialogResult.Yes)
