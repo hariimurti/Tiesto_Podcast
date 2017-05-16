@@ -34,7 +34,9 @@ namespace Tiesto.Podcast
                 textBox1.Text = Download.Folder;
             }
 
+            button2.Enabled = false;
             button4.Enabled = false;
+            button5.Enabled = false;
 
             checkBox1.Checked = localdata.SaveAsCue;
             checkBox2.Checked = localdata.SaveAsTxt;
@@ -95,6 +97,7 @@ namespace Tiesto.Podcast
             var data = (comboBox1.SelectedItem as ComboboxItem);
             button2.Enabled = false;
             button4.Enabled = false;
+            button5.Enabled = false;
             label9.Text = data.Title;
             label8.Text = data.Release.ToString();
             label7.Text = string.Empty;
@@ -137,6 +140,7 @@ namespace Tiesto.Podcast
 
                     button2.Enabled = true;
                     button4.Enabled = isListNotEmpty && (checkBox1.Checked || checkBox2.Checked);
+                    button5.Enabled = true;
                 }
                 else
                 {
@@ -219,6 +223,15 @@ namespace Tiesto.Podcast
             }
 
             if (result) MessageBox.Show("Track list berhasil disimpan.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (Download.Url != null)
+            {
+                Clipboard.SetText(Download.Url);
+                MessageBox.Show("Berhasil! Link sudah dicopy ke clipboard.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void SaveAsTxt()
