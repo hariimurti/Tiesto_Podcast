@@ -46,7 +46,7 @@ namespace Tiesto.Podcast
                     {
                         var intro_ts = TimeSpan.FromSeconds(lasttime);
                         string intro_durasi = $"{intro_ts.Minutes.ToString("00")}:{intro_ts.Seconds.ToString("00")}:{intro_ts.Milliseconds.ToString("00")}";
-                        AddTrack(tracknumber.ToString("00"), Data.Normalize(Data.GetArtist(x.artist) + " - Guest Mix"), intro_durasi);
+                        AddTrack(tracknumber.ToString("00"), Data.Normalize(Data.GetGuestMix(x.artist)), intro_durasi);
                         tracknumber++;
                         lasttime += 30;
                         guest = false;
