@@ -14,7 +14,7 @@ namespace Tiesto.Podcast
             var json = JsonConvert.DeserializeObject<Tiesto.Mix>(json_data);
 
             pathToSave = Path.Combine(Download.Folder, Download.FileName.Replace("m4a", "cue"));
-            Header(data.Year, data.Episode, Download.FileName);
+            WriteHeader(data.Year, data.Episode, Download.FileName);
 
             int tracknumber = 1;
             int lasttime = 0;
@@ -23,7 +23,7 @@ namespace Tiesto.Podcast
                 bool guest = false;
                 if (tracknumber == 1)
                 {
-                    AddTrack(tracknumber.ToString("00"), $"{Data.Normalize(x.artist)} - Intro", "00:00:00");
+                    AddIntro(tracknumber, Data.Normalize(x.artist), "Intro", 0);
                 }
                 else
                 {
@@ -44,22 +44,18 @@ namespace Tiesto.Podcast
 
                     if (guest)
                     {
-                        var intro_ts = TimeSpan.FromSeconds(lasttime);
-                        string intro_durasi = $"{intro_ts.Minutes.ToString("00")}:{intro_ts.Seconds.ToString("00")}:{intro_ts.Milliseconds.ToString("00")}";
-                        AddTrack(tracknumber.ToString("00"), Data.Normalize(Data.GetGuestMix(x.artist)), intro_durasi);
+                        AddIntro(tracknumber, Data.Normalize(x.artist), "Guest Mix", lasttime);
                         tracknumber++;
                         lasttime += 30;
                         guest = false;
                     }
-
-                    var ts = TimeSpan.FromSeconds(lasttime);
-                    string durasi = $"{ts.Minutes.ToString("00")}:{ts.Seconds.ToString("00")}:{ts.Milliseconds.ToString("00")}";
-                    AddTrack(tracknumber.ToString("00"), Data.Normalize(y.track.title), durasi, x.artist);
+                                        
+                    AddTrack(tracknumber, x.artist, Data.Normalize(y.track.title), lasttime);
                 }
             }
         }
 
-        private static void Header(string year, string episode, string filename)
+        private static void WriteHeader(string year, string episode, string filename)
         {
             File.WriteAllText(pathToSave,
                 $"REM GENRE Electronic Dance Music\r\n" +
@@ -69,26 +65,59 @@ namespace Tiesto.Podcast
                 $"FILE \"{filename}\" M4A\r\n");
         }
 
-        private static void AddTrack(string trackNumber, string trackName, string startTime, string guest = null)
+        private static void WriteTrack(int trackNumber, string performer, string title, int startTime)
+        {
+            var ts = TimeSpan.FromSeconds(startTime);
+            string duration = $"{ts.Minutes.ToString("00")}:{ts.Seconds.ToString("00")}:{ts.Milliseconds.ToString("00")}";
+
+            File.AppendAllText(pathToSave,
+                $"  TRACK {trackNumber.ToString("00")} AUDIO\r\n" +
+                $"    TITLE \"{title}\"\r\n" +
+                $"    PERFORMER \"{performer}\"\r\n" +
+                $"    INDEX 01 {duration}\r\n");
+        }
+
+        private static void AddIntro(int trackNumber, string artist, string trackName, int startTime)
+        {
+            string performer = Data.GetPerformer(artist);
+            WriteTrack(trackNumber, performer, trackName, startTime);
+        }
+
+        private static void AddTrack(int trackNumber, string artist, string trackName, int startTime)
         {
             Regex regex = new Regex(@"([\s\S]+)-([\s\S]+)");
             Match match = regex.Match(trackName);
-            string title, artist;
+            string title, performer;
             if (match.Success)
             {
-                artist = match.Groups[1].Value.Trim();
-                title = match.Groups[2].Value.Trim();
+                string value1 = match.Groups[1].Value.Trim();
+                string value2 = match.Groups[2].Value.Trim();
+                if (!value1.ToLower().Contains("guest"))
+                {
+                    performer = value1;
+                    title = value2;
+                }
+                else
+                {
+                    performer = value2;
+                    title = value1;
+                }
             }
             else
             {
-                artist = (guest != null) ? guest : "VA" ;
-                title = trackName;
+                if (!trackName.ToLower().Contains("guest"))
+                {
+                    performer = trackName;
+                    title = "Mixed Track";
+                }
+                else
+                {
+                    performer = Data.GetPerformer(artist);
+                    title = "Mixed Track";
+                }
             }
-            File.AppendAllText(pathToSave,
-                $"  TRACK {trackNumber} AUDIO\r\n" +
-                $"    TITLE \"{title}\"\r\n" + 
-                $"    PERFORMER \"{artist}\"\r\n" +
-                $"    INDEX 01 {startTime}\r\n");
+
+            WriteTrack(trackNumber, performer, title, startTime);
         }
     }
 }

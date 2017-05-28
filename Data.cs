@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Tiesto.Podcast
 {
@@ -20,31 +20,32 @@ namespace Tiesto.Podcast
             return dtDateTime;
         }
 
-        public static string GetGuestMix(string text)
+        public static string GetPerformer(string text)
         {
-            Regex regex = new Regex(@"([\s\S]+)-([\s\S]+)");
-            Match match = regex.Match(text);
-            if (match.Success)
+            string performer = text.ToLower()
+                    .Replace("guest", "")
+                    .Replace("mix", "")
+                    .Replace("-", "")
+                    .Trim();
+            if (performer != null)
             {
-                string grp1 = match.Groups[1].Value.Trim();
-                string grp2 = match.Groups[2].Value.Trim();
-                if (!grp1.ToLower().Contains("guest"))
-                {
-                    return $"{grp1} - {grp2}";
-                }
-                else
-                {
-                    return $"{grp2} - {grp1}";
-                }
+                return Data.UpperCaseFirst(performer);
             }
             else
             {
-                if (!text.ToLower().Contains("guest"))
-                {
-                    text = text.Trim() + " - Guest Mix";
-                }
-                return text.Trim();
+                return "VA";
             }
+        }
+
+        public static string UpperCaseFirst(string text)
+        {
+            string result = null;
+            string[] words = text.Split(' ');
+            foreach (string word in words)
+            {
+                result += char.ToUpper(word[0]) + word.Substring(1) + " ";
+            }
+            return result.Trim();
         }
     }
 }
