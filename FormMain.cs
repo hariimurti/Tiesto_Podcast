@@ -232,7 +232,7 @@ namespace Tiesto.Podcast
             if (Download.Url != null)
             {
                 Clipboard.SetText(Download.Url);
-                MessageBox.Show("Berhasil! Link sudah dicopy ke clipboard.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Link sudah dicopy ke clipboard.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
