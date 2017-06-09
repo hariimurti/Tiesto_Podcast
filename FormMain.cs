@@ -151,7 +151,6 @@ namespace Tiesto.Podcast
 
         private void button2_Click(object sender, EventArgs e)
         {
-            File.AppendAllText(localdata.HistoryLog, $"[{DateTime.Now}] {Download.FileName} - {Download.Url}\r\n");
             string idm = null;
             if (File.Exists(localdata.CustomIdm))
             {
@@ -170,27 +169,13 @@ namespace Tiesto.Podcast
             }
             if (idm != null)
             {
+                AskToSaveTrackList();
+                File.AppendAllText(localdata.HistoryLog, $"[{DateTime.Now}][IDM] {Download.FileName} - {Download.Url}\r\n");
+
                 ProcessStartInfo exec = new ProcessStartInfo();
                 exec.FileName = idm;
                 exec.Arguments = $"/d \"{Download.Url}\" /p \"{Download.Folder}\" /f \"{Download.FileName}\" /n";
                 Process.Start(exec);
-
-                string pathCue = Path.Combine(Download.Folder, Download.FileName.Replace("m4a", "cue"));
-                string pathTxt = Path.Combine(Download.Folder, Download.FileName.Replace("m4a", "txt"));
-                if (isListNotEmpty)
-                {
-                    if ((checkBox1.Checked && !File.Exists(pathCue)) || (checkBox2.Checked && !File.Exists(pathTxt)))
-                    {
-                        DialogResult askToSave = MessageBox.Show("Simpan track list?", this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        if (askToSave == DialogResult.Yes)
-                        {
-                            if (checkBox1.Checked)
-                                SaveAsCue();
-                            if (checkBox2.Checked)
-                                SaveAsTxt();
-                        }
-                    }
-                }
             }
             else
             {
@@ -233,6 +218,26 @@ namespace Tiesto.Podcast
             {
                 Clipboard.SetText(Download.Url);
                 MessageBox.Show("Link sudah dicopy ke clipboard.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void AskToSaveTrackList()
+        {
+            string pathCue = Path.Combine(Download.Folder, Download.FileName.Replace("m4a", "cue"));
+            string pathTxt = Path.Combine(Download.Folder, Download.FileName.Replace("m4a", "txt"));
+            if (isListNotEmpty)
+            {
+                if ((checkBox1.Checked && !File.Exists(pathCue)) || (checkBox2.Checked && !File.Exists(pathTxt)))
+                {
+                    DialogResult askToSave = MessageBox.Show("Simpan track list?", this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (askToSave == DialogResult.Yes)
+                    {
+                        if (checkBox1.Checked)
+                            SaveAsCue();
+                        if (checkBox2.Checked)
+                            SaveAsTxt();
+                    }
+                }
             }
         }
 
