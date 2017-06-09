@@ -37,6 +37,7 @@ namespace Tiesto.Podcast
             button2.Enabled = false;
             button4.Enabled = false;
             button5.Enabled = false;
+            button6.Enabled = false;
 
             checkBox1.Checked = localdata.SaveAsCue;
             checkBox2.Checked = localdata.SaveAsTxt;
@@ -60,6 +61,7 @@ namespace Tiesto.Podcast
         {
             button1.Enabled = false;
             button2.Enabled = false;
+            button6.Enabled = false;
             string json_data = await Tiesto.GetJsonData(PODCAST_LIST_URL);
             if (json_data != string.Empty)
             {
@@ -98,6 +100,7 @@ namespace Tiesto.Podcast
             button2.Enabled = false;
             button4.Enabled = false;
             button5.Enabled = false;
+            button6.Enabled = false;
             label9.Text = data.Title;
             label8.Text = data.Release.ToString();
             label7.Text = string.Empty;
@@ -141,6 +144,7 @@ namespace Tiesto.Podcast
                     button2.Enabled = true;
                     button4.Enabled = isListNotEmpty && (checkBox1.Checked || checkBox2.Checked);
                     button5.Enabled = true;
+                    button6.Enabled = File.Exists("wget.exe");
                 }
                 else
                 {
@@ -218,6 +222,26 @@ namespace Tiesto.Podcast
             {
                 Clipboard.SetText(Download.Url);
                 MessageBox.Show("Link sudah dicopy ke clipboard.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (File.Exists("wget.exe"))
+            {
+                AskToSaveTrackList();
+                File.AppendAllText(localdata.HistoryLog, $"[{DateTime.Now}][WGET] {Download.FileName} - {Download.Url}\r\n");
+                
+                ProcessStartInfo exec = new ProcessStartInfo();
+                exec.FileName = "wget.exe";
+                exec.Arguments = $"--output-document=\"{Path.Combine(Download.Folder, Download.FileName)}\" --tries=0 --continue" +
+                    (Download.Url.ToLower().Contains("https") ? "--no-check-certificate" : "") + $" \"{Download.Url}\"";
+                Process.Start(exec);
+            }
+            else
+            {
+                MessageBox.Show("wget.exe tidak ditemukan! Silahkan copy wget.exe ke dalam ini dan jalankan kembali.",
+                    this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
