@@ -231,11 +231,15 @@ namespace Tiesto.Podcast
             {
                 AskToSaveTrackList();
                 File.AppendAllText(localdata.HistoryLog, $"[{DateTime.Now}][WGET] {Download.FileName} - {Download.Url}\r\n");
-                
+
+                string pathSave = Path.Combine(Download.Folder, Download.FileName);
+                string wgetArgs = $"--output-document=\"{pathSave}\" --tries=0 --continue";
+                if (Download.Url.ToLower().StartsWith("https"))
+                    wgetArgs += " --no-check-certificate";
+
                 ProcessStartInfo exec = new ProcessStartInfo();
                 exec.FileName = "wget.exe";
-                exec.Arguments = $"--output-document=\"{Path.Combine(Download.Folder, Download.FileName)}\" --tries=0 --continue" +
-                    (Download.Url.ToLower().Contains("https") ? "--no-check-certificate" : "") + $" \"{Download.Url}\"";
+                exec.Arguments =  wgetArgs + $" \"{Download.Url}\"";
                 Process.Start(exec);
             }
             else
