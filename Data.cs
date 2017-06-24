@@ -26,6 +26,7 @@ namespace Tiesto.Podcast
                     .Replace("guest", "")
                     .Replace("mix", "")
                     .Replace("-", "")
+                    .Replace("_", "")
                     .Trim();
             if (performer != null)
             {
