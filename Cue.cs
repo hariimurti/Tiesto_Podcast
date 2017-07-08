@@ -86,7 +86,7 @@ namespace Tiesto.Podcast
         private static void AddTrack(int trackNumber, string artist, string trackName, int startTime)
         {
             Regex regex = new Regex(@"([\s\S]+)-([\s\S]+)");
-            Match match = regex.Match(trackName);
+            Match match = regex.Match(trackName.Replace("–", "-"));
             string title, performer;
             if (match.Success)
             {
