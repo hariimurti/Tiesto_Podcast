@@ -19,6 +19,7 @@ namespace Tiesto.Podcast
             InitializeComponent();
             InitializeListView();
             localdata = new LocalData();
+            this.Text = "Tiësto Clublife - Podcast Grabber v" + Application.ProductVersion.Substring(0, 3);
         }
 
         private void FormMain_Shown(object sender, EventArgs e)
