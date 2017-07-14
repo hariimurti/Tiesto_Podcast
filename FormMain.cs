@@ -233,14 +233,57 @@ namespace Tiesto.Podcast
                 File.AppendAllText(localdata.HistoryLog, $"[{DateTime.Now}][WGET] {Download.FileName} - {Download.Url}\r\n");
 
                 string pathSave = Path.Combine(Download.Folder, Download.FileName);
-                string wgetArgs = $"--output-document=\"{pathSave}\" --tries=0 --continue";
+                string pathTemp = pathSave + ".wget";
+                string wgetArgs = $"--output-document=\"{pathTemp}\" --tries=0 --continue";
                 if (Download.Url.ToLower().StartsWith("https"))
                     wgetArgs += " --no-check-certificate";
 
                 ProcessStartInfo exec = new ProcessStartInfo();
                 exec.FileName = "wget.exe";
                 exec.Arguments =  wgetArgs + $" \"{Download.Url}\"";
-                Process.Start(exec);
+
+                this.Hide();
+                Process proc = Process.Start(exec);
+                proc.WaitForExit();
+                int exitCode = proc.ExitCode;
+                string msgCode = null;
+                switch (exitCode)
+                {
+                    case 0:
+                        File.Move(pathTemp, pathSave);
+                        break;
+                    case 1:
+                        msgCode = "Generic error code.";
+                        break;
+                    case 2:
+                        msgCode = "Parse error — for instance, when parsing command-line options, the .wgetrc or .netrc…";
+                        break;
+                    case 3:
+                        msgCode = "File I/O error.";
+                        break;
+                    case 4:
+                        msgCode = "Network failure.";
+                        break;
+                    case 5:
+                        msgCode = "SSL verification failure.";
+                        break;
+                    case 6:
+                        msgCode = "Username/password authentication failure.";
+                        break;
+                    case 7:
+                        msgCode = "Protocol errors.";
+                        break;
+                    case 8:
+                        msgCode = "Server issued an error response.";
+                        break;
+                    default:
+                        msgCode = "Proses download dibatalkan karena sesuatu.";
+                        break;
+                }
+
+                if (msgCode != null)
+                    MessageBox.Show(msgCode, "WGet Downloader", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                this.Show();
             }
             else
             {
