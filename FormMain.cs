@@ -247,11 +247,12 @@ namespace Tiesto.Podcast
                 Process proc = Process.Start(exec);
                 proc.WaitForExit();
                 int exitCode = proc.ExitCode;
-                string msgCode = null;
+                string msgCode = "Proses download dibatalkan karena sesuatu.";
                 switch (exitCode)
                 {
                     case 0:
                         File.Move(pathTemp, pathSave);
+                        msgCode = "Download Complete!\nSaved as " + Path.GetFileName(pathSave);
                         break;
                     case 1:
                         msgCode = "Generic error code.";
@@ -277,13 +278,9 @@ namespace Tiesto.Podcast
                     case 8:
                         msgCode = "Server issued an error response.";
                         break;
-                    default:
-                        msgCode = "Proses download dibatalkan karena sesuatu.";
-                        break;
                 }
-
-                if (msgCode != null)
-                    MessageBox.Show(msgCode, "WGet Downloader", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                
+                MessageBox.Show(msgCode, "WGet Downloader", MessageBoxButtons.OK, (exitCode == 0) ? MessageBoxIcon.Information : MessageBoxIcon.Stop);
                 this.Show();
             }
             else
