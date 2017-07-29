@@ -234,7 +234,7 @@ namespace Tiesto.Podcast
                 File.AppendAllText(localdata.HistoryLog, $"[{DateTime.Now}][WGET] {Download.FileName} - {Download.Url}\r\n");
 
                 string pathSave = Path.Combine(Download.Folder, Download.FileName);
-                string pathTemp = pathSave + ".wget";
+                string pathTemp = Path.Combine(Download.Folder, "temp-podcast.wget");
                 string wgetArgs = $"--output-document=\"{pathTemp}\" --tries=0 --continue";
                 if (Download.Url.ToLower().StartsWith("https"))
                     wgetArgs += " --no-check-certificate";
@@ -251,8 +251,16 @@ namespace Tiesto.Podcast
                 switch (exitCode)
                 {
                     case 0:
-                        File.Move(pathTemp, pathSave);
-                        msgCode = "Download Complete!\nSaved as " + Path.GetFileName(pathSave);
+                        try
+                        {
+                            File.Move(pathTemp, pathSave);
+                            msgCode = "Download Complete!\nSaved as " + Path.GetFileName(pathSave);
+                        }
+                        catch (Exception)
+                        {
+                            msgCode = "Download Complete!\nTapi file tidak bisa direname!\nTemp: "
+                                + Path.GetFileName(pathTemp) + "\nSave: "+ Path.GetFileName(pathSave);
+                        }
                         break;
                     case 1:
                         msgCode = "Generic error code.";
