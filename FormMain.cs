@@ -58,43 +58,45 @@ namespace Tiesto.Podcast
             listView1.Columns.Add("Artist - Title", 240, HorizontalAlignment.Left);
         }
 
+        // refresh podcast list
         private async void button1_Click(object sender, EventArgs e)
         {
             button1.Enabled = false;
             button2.Enabled = false;
             button6.Enabled = false;
             string json_data = await Tiesto.GetJsonData(PODCAST_LIST_URL);
-            if (json_data != string.Empty)
-            {
-                File.WriteAllText(localdata.PodcastJson, json_data);
-                var json = JsonConvert.DeserializeObject<Tiesto.PodcastList>(json_data);
-                comboBox1.Enabled = false;
-                comboBox1.Items.Clear();
-                foreach (var pod in json.podcasts)
-                {
-                    ComboboxItem item = new ComboboxItem();
-                    item.Id = pod.podcast.id;
-                    item.Title = Data.Normalize(pod.podcast.title);
-                    item.Episode = pod.podcast.episodeNumber.ToString();
-                    item.Duration = pod.podcast.duration;
-                    item.Url = pod.podcast.mp4Url;
-                    double drelease = Convert.ToDouble(pod.podcast.releaseDate.ToString().Substring(0, 10));
-                    DateTime release = Data.UnixTimeStampToDateTime(drelease);
-                    item.Release = release;
-                    item.Year = release.Year.ToString();
-                    comboBox1.Items.Add(item);
-                }
-                comboBox1.Enabled = true;
-                comboBox1.SelectedIndex = 0;
-                comboBox1.Focus();
-            }
-            else
+            if (string.IsNullOrWhiteSpace(json_data))
             {
                 MessageBox.Show("Error tidak dapat mendapatkan data!\r\nCek koneksi internet anda...", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                button1.Enabled = true;
+                return;
             }
+
+            File.WriteAllText(localdata.PodcastJson, json_data);
+            var json = JsonConvert.DeserializeObject<Tiesto.PodcastList>(json_data);
+            comboBox1.Enabled = false;
+            comboBox1.Items.Clear();
+            foreach (var pod in json.podcasts)
+            {
+                ComboboxItem item = new ComboboxItem();
+                item.Id = pod.podcast.id;
+                item.Title = Data.Normalize(pod.podcast.title);
+                item.Episode = pod.podcast.episodeNumber.ToString();
+                item.Duration = pod.podcast.duration;
+                item.Url = pod.podcast.mp4Url;
+                double drelease = Convert.ToDouble(pod.podcast.releaseDate.ToString().Substring(0, 10));
+                DateTime release = Data.UnixTimeStampToDateTime(drelease);
+                item.Release = release;
+                item.Year = release.Year.ToString();
+                comboBox1.Items.Add(item);
+            }
+            comboBox1.Enabled = true;
+            comboBox1.SelectedIndex = 0;
+            comboBox1.Focus();
             button1.Enabled = true;
         }
 
+        // load podcast info & tracklist
         private async void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             var data = (comboBox1.SelectedItem as ComboboxItem);
@@ -111,49 +113,49 @@ namespace Tiesto.Podcast
             {
                 Download.Url = (comboBox1.SelectedItem as ComboboxItem).Url;
                 string json_data = await Tiesto.GetJsonData(PODCAST_TRACK_URL.Replace("$id", Download.Id));
-                if (json_data != string.Empty)
+                if (string.IsNullOrWhiteSpace(json_data))
                 {
-                    File.WriteAllText(localdata.TracklistJson, json_data);
-                    var json = JsonConvert.DeserializeObject<Tiesto.Mix>(json_data);
-                    listView1.Items.Clear();
-                    int trackCount = 0;
-                    foreach (var x in json.mixPodcastTracks)
-                    {
-                        foreach (var y in x.tracks)
-                        {
-                            trackCount++;
-                            ListViewItem item1 = new ListViewItem(y.track.id);
-                            var ts = TimeSpan.FromSeconds(y.track.starttime);
-                            string durasi = string.Format("{0}:{1}", ts.Minutes.ToString("00"), ts.Seconds.ToString("00"));
-                            item1.SubItems.Add(durasi);
-                            item1.SubItems.Add(Data.Normalize(y.track.title));
-                            listView1.Items.Add(item1);
-                        }
-                    }
+                    MessageBox.Show("Error tidak dapat mendapatkan data!\r\nCek koneksi internet anda...", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    return;
+                }
 
-                    if (trackCount == 0)
+                File.WriteAllText(localdata.TracklistJson, json_data);
+                var json = JsonConvert.DeserializeObject<Tiesto.Mix>(json_data);
+                listView1.Items.Clear();
+                int trackCount = 0;
+                foreach (var x in json.mixPodcastTracks)
+                {
+                    foreach (var y in x.tracks)
                     {
-                        label7.Text = "0 Track";
-                        isListNotEmpty = false;
+                        trackCount++;
+                        ListViewItem item1 = new ListViewItem(y.track.id);
+                        var ts = TimeSpan.FromSeconds(y.track.starttime);
+                        string durasi = string.Format("{0}:{1}", ts.Minutes.ToString("00"), ts.Seconds.ToString("00"));
+                        item1.SubItems.Add(durasi);
+                        item1.SubItems.Add(Data.Normalize(y.track.title));
+                        listView1.Items.Add(item1);
                     }
-                    else
-                    {
-                        label7.Text = $"{trackCount.ToString()} Tracks";
-                        isListNotEmpty = true;
-                    }
+                }
 
-                    button2.Enabled = true;
-                    button4.Enabled = isListNotEmpty && (checkBox1.Checked || checkBox2.Checked);
-                    button5.Enabled = true;
-                    button6.Enabled = File.Exists("wget.exe");
+                if (trackCount == 0)
+                {
+                    label7.Text = "0 Track";
+                    isListNotEmpty = false;
                 }
                 else
                 {
-                    MessageBox.Show("Error tidak dapat mendapatkan data!\r\nCek koneksi internet anda...", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    label7.Text = $"{trackCount.ToString()} Tracks";
+                    isListNotEmpty = true;
                 }
+
+                button2.Enabled = true;
+                button4.Enabled = isListNotEmpty && (checkBox1.Checked || checkBox2.Checked);
+                button5.Enabled = true;
+                button6.Enabled = File.Exists("wget.exe");
             }
         }
 
+        // idm
         private void button2_Click(object sender, EventArgs e)
         {
             string idm = null;
@@ -189,6 +191,7 @@ namespace Tiesto.Podcast
             }
         }
 
+        // save folder
         private void button3_Click(object sender, EventArgs e)
         {
             DialogResult result = folderBrowser.ShowDialog();
@@ -200,6 +203,7 @@ namespace Tiesto.Podcast
             }
         }
 
+        // save tracklist
         private void button4_Click(object sender, EventArgs e)
         {
             bool result = false;
@@ -217,6 +221,7 @@ namespace Tiesto.Podcast
             if (result) MessageBox.Show("Track list berhasil disimpan.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        // copy clipboard
         private void button5_Click(object sender, EventArgs e)
         {
             if (Download.Url != null)
@@ -226,6 +231,7 @@ namespace Tiesto.Podcast
             }
         }
 
+        // wget
         private void button6_Click(object sender, EventArgs e)
         {
             if (File.Exists("wget.exe"))
