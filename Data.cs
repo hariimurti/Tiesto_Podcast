@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Tiesto.Podcast
 {
@@ -22,20 +23,14 @@ namespace Tiesto.Podcast
 
         public static string GetPerformer(string text)
         {
-            string performer = text.ToLower()
-                    .Replace("guest", "")
-                    .Replace("mix", "")
-                    .Replace("-", "")
-                    .Replace("_", "")
-                    .Replace("–", "")
-                    .Trim();
-            if (performer != null)
+            var match = new Regex(@"(?:guest.+)?(?:mix.+)?[-–_].?(.+)", RegexOptions.IgnoreCase).Match(text);
+            if (match.Success)
             {
-                return Data.UpperCaseFirst(performer);
+                return Data.UpperCaseFirst(match.Groups[1].Value.Trim());
             }
             else
             {
-                return "VA";
+                return string.IsNullOrWhiteSpace(text) ? "VA" : text ;
             }
         }
 

@@ -336,7 +336,7 @@ namespace Tiesto.Podcast
 
             foreach (var x in json.mixPodcastTracks)
             {
-                File.AppendAllText(savelist, $"== {Data.Normalize(x.artist)} ==\r\n");
+                File.AppendAllText(savelist, $"== {Data.GetPerformer(Data.Normalize(x.artist))} ==\r\n");
                 foreach (var y in x.tracks)
                 {
                     var ts = TimeSpan.FromSeconds(y.track.starttime);
